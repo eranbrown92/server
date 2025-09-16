@@ -60,7 +60,7 @@ app.post('/api/schedule', async (req, res) => {
 
         // Validate schedule date is in the future
         // Frontend sends datetime-local format (e.g., "2025-09-15T16:12")
-        // We need to be more lenient as this might be in user's local timezone
+        // Treat this as local server time for validation purposes
         const scheduledTime = new Date(scheduleDateTime);
         const now = new Date();
 
@@ -70,20 +70,22 @@ app.post('/api/schedule', async (req, res) => {
         // Add debug logging to help troubleshoot timezone issues
         console.log('📅 Schedule validation:', {
             provided: scheduleDateTime,
-            scheduledTime: scheduledTime.toISOString(),
-            now: now.toISOString(),
-            fiveMinutesAgo: fiveMinutesAgo.toISOString(),
+            scheduledTime: scheduledTime.toString(),
+            scheduledTimeISO: scheduledTime.toISOString(),
+            now: now.toString(),
+            nowISO: now.toISOString(),
             timeDifference: scheduledTime.getTime() - now.getTime(),
+            timeDifferenceMinutes: Math.round((scheduledTime.getTime() - now.getTime()) / (1000 * 60)),
             isInFuture: scheduledTime > fiveMinutesAgo
         });
 
         if (scheduledTime <= fiveMinutesAgo) {
             return res.status(400).json({
                 success: false,
-                error: 'Scheduled time must be in the future (allowing 5-minute buffer for timezone differences)',
+                error: 'Scheduled time must be in the future (allowing 5-minute buffer)',
                 provided: scheduleDateTime,
-                scheduledTime: scheduledTime.toISOString(),
-                current: now.toISOString(),
+                scheduledTime: scheduledTime.toString(),
+                current: now.toString(),
                 timeDifferenceMinutes: Math.round((scheduledTime.getTime() - now.getTime()) / (1000 * 60))
             });
         }

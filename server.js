@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const { saveScheduledPost, getAllScheduledPosts, deleteScheduledPost } = require('./database');
 const { triggerSchedulerManually } = require('./scheduler');
 
@@ -23,6 +24,14 @@ app.use(cors({
     credentials: true
 }));
 app.use(express.json());
+
+// Serve static files (for admin.html)
+app.use(express.static(__dirname));
+
+// Admin page route - serve admin.html at /admin
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin.html'));
+});
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -240,7 +249,7 @@ app.listen(PORT, () => {
     console.log(`   POST http://localhost:${PORT}/api/trigger-scheduler`);
     console.log(`   DELETE http://localhost:${PORT}/api/posts/:id`);
     console.log('📄 Admin interface:');
-    console.log(`   http://localhost:${PORT}/admin.html`);
+    console.log(`   http://localhost:${PORT}/admin`);
 });
 
 // Graceful shutdown

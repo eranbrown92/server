@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Admin - Instagram Post Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .admin-header {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .admin-header h1 {
+            color: #333;
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .admin-header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #333;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Live Clock Styles */
+        .time-display {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .time-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .time-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .time-value {
+            font-family: 'Courier New', monospace;
+            font-size: 16px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .timezone {
+            font-size: 12px;
+            color: #888;
+            font-style: italic;
+        }
+
+        .sync-status {
+            text-align: center;
+            padding: 10px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        /* Server Info Styles */
+        .server-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e8ecf4;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #666;
+        }
+
+        .info-value {
+            font-family: 'Courier New', monospace;
+            color: #333;
+        }
+
+        /* Scheduled Posts Table */
+        .posts-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .posts-table th,
+        .posts-table td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #e8ecf4;
+        }
+
+        .posts-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .posts-table td {
+            font-size: 13px;
+            color: #333;
+        }
+
+        .post-title {
+            max-width: 200px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .post-time {
+            font-family: 'Courier New', monospace;
+            font-weight: 600;
+        }
+
+        .post-status {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-scheduled {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .status-published {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .status-failed {
+            background: #fecaca;
+            color: #dc2626;
+        }
+
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #666;
+            border: 2px solid #e8ecf4;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .time-row {
+                flex-direction: column;
+                gap: 5px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>📊 Schedule Admin</h1>
+            <p>Manage your Instagram post schedule and server time</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Live Time Display -->
+            <div class="card">
+                <h2>🕐 Live Time Sync</h2>
+                <div id="liveTimeDisplay" class="time-display">
+                    <div class="time-row">
+                        <span class="time-label">Server Time:</span>
+                        <div>
+                            <span id="serverTime" class="time-value">Loading...</span>
+                            <div id="serverTimezone" class="timezone"></div>
+                        </div>
+                    </div>
+                    <div class="time-row">
+                        <span class="time-label">Your Local Time:</span>
+                        <div>
+                            <span id="localTime" class="time-value">Loading...</span>
+                            <div class="timezone">(Local)</div>
+                        </div>
+                    </div>
+                    <div class="time-row">
+                        <span class="time-label">Time Difference:</span>
+                        <span id="timeDifference" class="time-value">Calculating...</span>
+                    </div>
+                </div>
+                <div id="syncStatus" class="sync-status">🔄 Syncing...</div>
+            </div>
+
+            <!-- Server Information -->
+            <div class="card">
+                <h2>⚙️ Server Information</h2>
+                <div id="serverInfo" class="server-info">
+                    <div class="info-row">
+                        <span class="info-label">Server Status:</span>
+                        <span id="serverStatus" class="info-value">Checking...</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Server Timezone:</span>
+                        <span id="serverTimezoneInfo" class="info-value">Loading...</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Last Sync:</span>
+                        <span id="lastSync" class="info-value">Never</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Next Check:</span>
+                        <span id="nextCheck" class="info-value">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scheduled Posts -->
+        <div class="card">
+            <h2>📅 Scheduled Posts</h2>
+            <div id="postsContainer">
+                <table class="posts-table">
+                    <thead>
+                        <tr>
+                            <th>Post Title</th>
+                            <th>Scheduled Time (Server)</th>
+                            <th>Scheduled Time (Local)</th>
+                            <th>Series</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="postsTableBody">
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 40px; color: #666;">
+                                <div class="loading-spinner" style="margin: 0 auto 10px;"></div>
+                                Loading scheduled posts...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" onclick="refreshPosts()">🔄 Refresh Posts</button>
+                <button class="btn btn-secondary" onclick="triggerScheduler()">⚡ Trigger Scheduler</button>
+                <a href="../index.html" class="btn btn-secondary">← Back to Post Generator</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE_URL = 'https://schedule.qwiktechtips.com/api';
+
+        let serverTimeOffset = 0;
+        let serverTimezone = 'UTC';
+        let updateInterval = null;
+
+        // Initialize admin panel
+        async function initAdmin() {
+            console.log('🚀 Initializing admin panel...');
+
+            await syncServerTime();
+            await loadScheduledPosts();
+
+            // Start live updates
+            startLiveUpdates();
+        }
+
+        // Sync server time
+        async function syncServerTime() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/time`);
+                const data = await response.json();
+
+                const serverTime = new Date(data.serverTime);
+                const localTime = new Date();
+                serverTimeOffset = serverTime.getTime() - localTime.getTime();
+                serverTimezone = data.serverTimezone;
+
+                document.getElementById('syncStatus').innerHTML = '✅ Synchronized';
+                document.getElementById('serverTimezoneInfo').textContent = serverTimezone;
+                document.getElementById('lastSync').textContent = new Date().toLocaleString();
+                document.getElementById('serverStatus').textContent = '🟢 Online';
+
+                console.log('🕐 Time sync successful:', {
+                    serverTime: serverTime.toISOString(),
+                    localTime: localTime.toISOString(),
+                    offset: serverTimeOffset,
+                    serverTimezone: serverTimezone
+                });
+
+                updateTimeDisplay();
+                return true;
+            } catch (error) {
+                console.error('❌ Time sync failed:', error);
+                document.getElementById('syncStatus').innerHTML = '❌ Sync Failed';
+                document.getElementById('serverStatus').textContent = '🔴 Offline';
+                return false;
+            }
+        }
+
+        // Get current server time
+        function getServerTime() {
+            return new Date(Date.now() + serverTimeOffset);
+        }
+
+        // Update time display
+        function updateTimeDisplay() {
+            const serverTime = getServerTime();
+            const localTime = new Date();
+            const diffMinutes = Math.round(serverTimeOffset / (1000 * 60));
+
+            document.getElementById('serverTime').textContent = serverTime.toLocaleString();
+            document.getElementById('localTime').textContent = localTime.toLocaleString();
+            document.getElementById('serverTimezone').textContent = `(${serverTimezone})`;
+
+            let diffText = diffMinutes === 0 ? 'No difference' :
+                          diffMinutes > 0 ? `+${diffMinutes} minutes` :
+                          `${diffMinutes} minutes`;
+            document.getElementById('timeDifference').textContent = diffText;
+        }
+
+        // Load scheduled posts
+        async function loadScheduledPosts() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/posts`);
+                const data = await response.json();
+
+                if (data.success && data.data) {
+                    displayPosts(data.data);
+                } else {
+                    showPostsError('Failed to load posts');
+                }
+            } catch (error) {
+                console.error('❌ Failed to load posts:', error);
+                showPostsError('Error loading posts');
+            }
+        }
+
+        // Display posts in table
+        function displayPosts(posts) {
+            const tbody = document.getElementById('postsTableBody');
+
+            if (posts.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: #666;">
+                            📭 No scheduled posts found
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = posts.map(post => {
+                const scheduledTime = new Date(post.schedule_datetime);
+                const serverTime = new Date(scheduledTime.getTime() + serverTimeOffset);
+                const status = scheduledTime > new Date() ? 'scheduled' : 'published';
+
+                return `
+                    <tr>
+                        <td class="post-title" title="${post.product_title}">${post.product_title}</td>
+                        <td class="post-time">${serverTime.toLocaleString()}</td>
+                        <td class="post-time">${scheduledTime.toLocaleString()}</td>
+                        <td>${post.series_name || '—'}</td>
+                        <td><span class="post-status status-${status}">${status}</span></td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Show posts error
+        function showPostsError(message) {
+            const tbody = document.getElementById('postsTableBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 40px; color: #dc2626;">
+                        ❌ ${message}
+                    </td>
+                </tr>
+            `;
+        }
+
+        // Refresh posts
+        async function refreshPosts() {
+            document.getElementById('postsTableBody').innerHTML = `
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 40px; color: #666;">
+                        <div class="loading-spinner" style="margin: 0 auto 10px;"></div>
+                        Refreshing posts...
+                    </td>
+                </tr>
+            `;
+            await loadScheduledPosts();
+        }
+
+        // Trigger scheduler manually
+        async function triggerScheduler() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/trigger-scheduler`, {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    alert('✅ Scheduler triggered successfully!');
+                    await loadScheduledPosts();
+                } else {
+                    alert('❌ Failed to trigger scheduler');
+                }
+            } catch (error) {
+                console.error('❌ Scheduler trigger failed:', error);
+                alert('❌ Error triggering scheduler');
+            }
+        }
+
+        // Start live updates
+        function startLiveUpdates() {
+            if (updateInterval) clearInterval(updateInterval);
+            updateInterval = setInterval(() => {
+                updateTimeDisplay();
+
+                // Re-sync every 5 minutes
+                if (new Date().getSeconds() === 0 && new Date().getMinutes() % 5 === 0) {
+                    syncServerTime();
+                }
+            }, 1000);
+        }
+
+        // Stop live updates
+        function stopLiveUpdates() {
+            if (updateInterval) {
+                clearInterval(updateInterval);
+                updateInterval = null;
+            }
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', initAdmin);
+
+        // Cleanup when page unloads
+        window.addEventListener('beforeunload', stopLiveUpdates);
+    </script>
+</body>
+</html>

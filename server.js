@@ -33,6 +33,18 @@ app.get('/health', (req, res) => {
     });
 });
 
+// Server time endpoint for frontend synchronization
+app.get('/api/time', (req, res) => {
+    const now = new Date();
+    res.json({
+        serverTime: now.toISOString(),
+        serverTimestamp: now.getTime(),
+        serverTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        serverLocalTime: now.toString(),
+        serverOffset: now.getTimezoneOffset()
+    });
+});
+
 // Schedule a post endpoint
 app.post('/api/schedule', async (req, res) => {
     try {

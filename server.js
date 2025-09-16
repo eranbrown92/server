@@ -85,8 +85,8 @@ app.post('/api/schedule', async (req, res) => {
         const scheduledTime = new Date(scheduleDateTime);
         const now = new Date();
 
-        // Allow a 5-minute buffer for timezone differences and processing delays
-        const fiveMinutesAgo = new Date(now.getTime() - 5 * 60 * 1000);
+        // Allow a 1-minute buffer for processing delays (much more reasonable)
+        const oneMinuteAgo = new Date(now.getTime() - 1 * 60 * 1000);
 
         // Add debug logging to help troubleshoot timezone issues
         console.log('📅 Schedule validation:', {
@@ -97,13 +97,13 @@ app.post('/api/schedule', async (req, res) => {
             nowISO: now.toISOString(),
             timeDifference: scheduledTime.getTime() - now.getTime(),
             timeDifferenceMinutes: Math.round((scheduledTime.getTime() - now.getTime()) / (1000 * 60)),
-            isInFuture: scheduledTime > fiveMinutesAgo
+            isInFuture: scheduledTime > oneMinuteAgo
         });
 
-        if (scheduledTime <= fiveMinutesAgo) {
+        if (scheduledTime <= oneMinuteAgo) {
             return res.status(400).json({
                 success: false,
-                error: 'Scheduled time must be in the future (allowing 5-minute buffer)',
+                error: 'Scheduled time must be at least 1 minute in the future',
                 provided: scheduleDateTime,
                 scheduledTime: scheduledTime.toString(),
                 current: now.toString(),

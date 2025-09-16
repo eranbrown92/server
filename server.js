@@ -233,9 +233,14 @@ app.listen(PORT, () => {
     console.log('🚀 Instagram Scheduler Server started');
     console.log(`📡 Server running on http://localhost:${PORT}`);
     console.log('🔗 API endpoints:');
+    console.log(`   GET  http://localhost:${PORT}/health`);
+    console.log(`   GET  http://localhost:${PORT}/api/time`);
     console.log(`   POST http://localhost:${PORT}/api/schedule`);
     console.log(`   GET  http://localhost:${PORT}/api/posts`);
-    console.log(`   GET  http://localhost:${PORT}/health`);
+    console.log(`   POST http://localhost:${PORT}/api/trigger-scheduler`);
+    console.log(`   DELETE http://localhost:${PORT}/api/posts/:id`);
+    console.log('📄 Admin interface:');
+    console.log(`   http://localhost:${PORT}/admin.html`);
 });
 
 // Graceful shutdown
